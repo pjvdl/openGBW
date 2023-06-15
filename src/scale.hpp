@@ -2,6 +2,7 @@
 
 #include <SimpleKalmanFilter.h>
 #include "HX711.h"
+#include "display.hpp"
 
 class MenuItem
 {
@@ -19,6 +20,7 @@ class MenuItem
 #define STATUS_GRINDING_FAILED 3
 #define STATUS_IN_MENU 4
 #define STATUS_IN_SUBMENU 5
+#define STATUS_IN_SUBSUBMENU 6
 
 #define CUP_WEIGHT 70
 #define CUP_DETECTION_TOLERANCE 5 // 5 grams tolerance above or bellow cup weight to detect it
@@ -46,8 +48,9 @@ class MenuItem
 #define ROTARY_ENCODER_STEPS 4
 
 extern double scaleWeight;
+extern bool wakeDisp;
 extern unsigned long scaleLastUpdatedAt;
-extern unsigned long lastSignificantWeightChangeAt;
+extern unsigned long lastAction;
 extern unsigned long lastTareAt;
 extern bool scaleReady;
 extern int scaleStatus;

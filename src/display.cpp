@@ -4,7 +4,8 @@ U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0);
 
 TaskHandle_t DisplayTask;
 
-#define SLEEP_AFTER_MS 60 * 1000 // sleep after 10 seconds
+const unsigned int SLEEP_AFTER_MS = 60 * 1000; // sleep after 60 seconds
+bool dispAsleep = false;
 
 void CenterPrintToScreen(char const *str, u8g2_uint_t y) {
   u8g2_uint_t width = u8g2.getStrWidth(str);
@@ -71,6 +72,17 @@ void showOffsetMenu(){
 }
 
 
+void showManualGrindMenu(){
+  char buf[16];
+  u8g2.clearBuffer();
+  u8g2.setFontPosTop();
+  u8g2.setFont(u8g2_font_7x13_tr);
+  CenterPrintToScreen("Click to start", 20);
+  u8g2.setFont(u8g2_font_7x13_tr);
+  CenterPrintToScreen("grinding", 38);
+  u8g2.sendBuffer();
+}
+
 
 void showScaleModeMenu()
 {
@@ -98,7 +110,7 @@ void showGrindModeMenu()
   u8g2.setFontPosTop();
   u8g2.setFont(u8g2_font_7x14B_tf);
   CenterPrintToScreen("Set Grinder ", 0);
-  CenterPrintToScreen("Sart/Stop Mode", 19);
+  CenterPrintToScreen("Start/Stop Mode", 19);
   u8g2.setFont(u8g2_font_7x13_tr);
   if (grindMode)
   {
@@ -162,25 +174,28 @@ void showResetMenu()
 }
 
 void showSetting(){
-  if(currentSetting == 2){
+  if(currentSetting == 3){
     showOffsetMenu();
   }
   else if(currentSetting == 0){
+    showManualGrindMenu();
+  }
+  else if(currentSetting == 1){
     showCupMenu();
   }
-  else if (currentSetting == 1)
+  else if (currentSetting == 2)
   {
     showCalibrationMenu();
   }
-  else if (currentSetting == 3)
+  else if (currentSetting == 4)
   {
     showScaleModeMenu();
   }
-  else if (currentSetting == 4)
+  else if (currentSetting == 5)
   {
     showGrindModeMenu();
   }
-  else if (currentSetting == 6)
+  else if (currentSetting == 7)
   {
     showResetMenu();
   }
@@ -192,11 +207,19 @@ void updateDisplay( void * parameter) {
 
   for(;;) {
     u8g2.clearBuffer();
-    if (millis() - lastSignificantWeightChangeAt > SLEEP_AFTER_MS) {
+
+    if (dispAsleep && !wakeDisp)
+      continue;
+
+    if (!wakeDisp
+        && (millis() - lastAction) > SLEEP_AFTER_MS) {
       u8g2.sendBuffer();
       delay(100);
+      dispAsleep = true;
       continue;
     }
+
+    dispAsleep = false;
 
     if (scaleLastUpdatedAt == 0) {
       u8g2.setFontPosTop();
