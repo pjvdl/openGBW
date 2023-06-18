@@ -34,7 +34,7 @@ int scaleStatus = STATUS_EMPTY;
 double cupWeightEmpty = 0; //measured actual cup weight
 unsigned long startedGrindingAt = 0;
 unsigned long finishedGrindingAt = 0;
-int encoderDir = 1;
+int encoderDir = -1;
 bool greset = false;
 
 bool newOffset = false;
