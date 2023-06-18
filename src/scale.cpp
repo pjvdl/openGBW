@@ -232,7 +232,7 @@ void rotary_loop()
       }
     else if(scaleStatus == STATUS_IN_MENU){
       int newValue = rotaryEncoder.readEncoder();
-      currentMenuItem = (currentMenuItem + (newValue - encoderValue) * -encoderDir) % menuItemsCount;
+      currentMenuItem = (currentMenuItem + (newValue - encoderValue) * encoderDir) % menuItemsCount;
       currentMenuItem = currentMenuItem < 0 ? menuItemsCount + currentMenuItem : currentMenuItem;
       encoderValue = newValue;
       Serial.println(currentMenuItem);
