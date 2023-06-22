@@ -314,18 +314,23 @@ void scaleStatusLoop(void *p) {
     
 
     if (ABS(tenSecAvg - scaleWeight) > SIGNIFICANT_WEIGHT_CHANGE) {
-      
       lastAction = millis();
     }
 
     if (scaleStatus == STATUS_EMPTY) {
-      if (millis() - lastTareAt > TARE_MIN_INTERVAL && ABS(tenSecAvg) > 0.2 && tenSecAvg < 3 && scaleWeight < 3) {
+      if (((millis() - lastTareAt) > TARE_MIN_INTERVAL)
+          && (ABS(tenSecAvg) > 0.2) 
+          && (tenSecAvg < 3) 
+          && (scaleWeight < 3)) {
         // tare if: not tared recently, more than 0.2 away from 0, less than 3 grams total (also works for negative weight)
         lastTareAt = 0;
+        scaleStatus = STATUS_TARING;
       }
 
-      if (ABS(weightHistory.minSince((int64_t)millis() - 1000) - setCupWeight) < CUP_DETECTION_TOLERANCE &&
-          ABS(weightHistory.maxSince((int64_t)millis() - 1000) - setCupWeight) < CUP_DETECTION_TOLERANCE)
+      if (ABS(weightHistory.minSince((int64_t)millis() - 1000) - setCupWeight) < CUP_DETECTION_TOLERANCE 
+          && ABS(weightHistory.maxSince((int64_t)millis() - 1000) - setCupWeight) < CUP_DETECTION_TOLERANCE
+          && (lastTareAt != 0)
+          && scaleReady)
       {
         // using average over last 500ms as empty cup weight
         Serial.println("Starting grinding");
@@ -349,14 +354,14 @@ void scaleStatusLoop(void *p) {
       //Serial.printf("Scale mode: %d\n", scaleMode);
       //Serial.printf("Started grinding at: %d\n", startedGrindingAt);
       //Serial.printf("Weight: %f\n", cupWeightEmpty - scaleWeight);
-      if (scaleMode && startedGrindingAt == 0 && scaleWeight - cupWeightEmpty >= 0.1)
+      if (scaleMode && (startedGrindingAt == 0) && ((scaleWeight - cupWeightEmpty) >= 0.1))
       {
         Serial.printf("Started grinding at: %d\n", millis());
         startedGrindingAt = millis();
         continue;
       }
 
-      if (millis() - startedGrindingAt > MAX_GRINDING_TIME && !scaleMode) {
+      if (((millis() - startedGrindingAt) > MAX_GRINDING_TIME) && !scaleMode) {
         Serial.println("Failed because grinding took too long");
         
         grinderToggle();
@@ -364,11 +369,9 @@ void scaleStatusLoop(void *p) {
         continue;
       }
 
-      if (
-          millis() - startedGrindingAt > 2000 &&                                  // started grinding at least 2s ago
-          scaleWeight - weightHistory.firstValueOlderThan(millis() - 2000) < 1 && // less than a gram has been grinded in the last 2 second
-          !scaleMode)
-      {
+      if ( ((millis() - startedGrindingAt) > 3000) // started grinding at least 3s ago
+            && ((scaleWeight - weightHistory.firstValueOlderThan(millis() - 2000)) < 0.5) // less than a gram has been grinded in the last 2 second
+            && !scaleMode) {
         Serial.println("Failed because no change in weight was detected");
         
         grinderToggle();
@@ -376,18 +379,20 @@ void scaleStatusLoop(void *p) {
         continue;
       }
 
-      if (weightHistory.minSince((int64_t)millis() - 200) < cupWeightEmpty - CUP_DETECTION_TOLERANCE && !scaleMode) {
-        Serial.printf("Failed because weight too low, min: %f, min value: %f\n", weightHistory.minSince((int64_t)millis() - 200), CUP_WEIGHT + CUP_DETECTION_TOLERANCE);
+      // if (weightHistory.minSince((int64_t)millis() - 200) < (cupWeightEmpty - CUP_DETECTION_TOLERANCE) 
+      //       && !scaleMode) {
+      //   Serial.printf("Failed because weight too low, min: %f, min value: %f\n", weightHistory.minSince((int64_t)millis() - 200), CUP_WEIGHT + CUP_DETECTION_TOLERANCE);
         
-        grinderToggle();
-        scaleStatus = STATUS_GRINDING_FAILED;
-        continue;
-      }
+      //   grinderToggle();
+      //   scaleStatus = STATUS_GRINDING_FAILED;
+      //   continue;
+      // }
       double currentOffset = offset;
       if(scaleMode){
         currentOffset = 0;
       }
-      if (weightHistory.maxSince((int64_t)millis() - 200) >= cupWeightEmpty + setWeight + currentOffset) {
+
+      if (weightHistory.maxSince((int64_t)millis() - 200) >= (cupWeightEmpty + setWeight + currentOffset)) {
         Serial.println("Finished grinding");
         finishedGrindingAt = millis();
         
@@ -403,9 +408,11 @@ void scaleStatusLoop(void *p) {
         scaleStatus = STATUS_EMPTY;
         continue;
       }
-      else if (currentWeight != setWeight + cupWeightEmpty && millis() - finishedGrindingAt > 1500 && newOffset)
+      else if ((currentWeight != (setWeight + cupWeightEmpty)) 
+                && ((millis() - finishedGrindingAt) > 1500)
+                && newOffset)
       {
-        offset += setWeight + cupWeightEmpty - currentWeight;
+        offset += (setWeight + cupWeightEmpty - currentWeight);
         if(ABS(offset) >= setWeight){
           offset = COFFEE_DOSE_OFFSET;
         }
@@ -419,6 +426,11 @@ void scaleStatusLoop(void *p) {
         Serial.println("Going back to empty");
         scaleStatus = STATUS_EMPTY;
         continue;
+      }
+    }
+    else if (scaleStatus == STATUS_TARING) {
+      if (lastTareAt != 0) {
+        scaleStatus = STATUS_EMPTY;
       }
     }
     rotary_loop();

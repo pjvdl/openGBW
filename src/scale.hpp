@@ -21,6 +21,7 @@ class MenuItem
 #define STATUS_IN_MENU 4
 #define STATUS_IN_SUBMENU 5
 #define STATUS_IN_SUBSUBMENU 6
+#define STATUS_TARING 7
 
 #define CUP_WEIGHT 70
 #define CUP_DETECTION_TOLERANCE 5 // 5 grams tolerance above or bellow cup weight to detect it

@@ -319,6 +319,17 @@ void updateDisplay( void * parameter) {
       {
         showSetting();
       }
+      else if (scaleStatus == STATUS_TARING)
+      {
+        char buf[16];
+        u8g2.clearBuffer();
+        u8g2.setFontPosTop();
+        u8g2.setFont(u8g2_font_7x13_tr);
+        CenterPrintToScreen("Taring...", 20);
+        u8g2.setFont(u8g2_font_7x13_tr);
+        CenterPrintToScreen("Remove weight", 38);
+        u8g2.sendBuffer();
+      }
     }
     u8g2.sendBuffer();
     // delay(100);
