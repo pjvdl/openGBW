@@ -40,7 +40,7 @@ class MenuItem
 
 #define GRINDER_ACTIVE_PIN 33
 
-#define TARE_MIN_INTERVAL 10 * 1000 // auto-tare at most once every 10 seconds
+#define TARE_MIN_INTERVAL 60 * 1000 // auto-tare at most once every 60 seconds
 
 #define ROTARY_ENCODER_A_PIN 32
 #define ROTARY_ENCODER_B_PIN 23
