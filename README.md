@@ -4,7 +4,7 @@ This Project extends and adapts the original by Guillaume Besson
 
 More info: https://besson.co/projects/coffee-grinder-smart-scale
 
-
+It has been adapted to operate with a [ESP32-S3-DevKitC-1](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/hw-reference/esp32s3/user-guide-devkitc-1.html) board.
 This mod will add GBW functionality to basically any coffe grinder that can be started and stopped manually.
 
 The included 3D Models are adapted to the Eureka Mignon XL, but the electronics can be used for any Scale.
@@ -13,6 +13,7 @@ The included 3D Models are adapted to the Eureka Mignon XL, but the electronics 
 
 ### Differences to the original
 
+- changed IO pins to match [ESP32-S3-DevKitC-1](https://docs.platformio.org/en/latest/boards/espressif32/esp32-s3-devkitc-1.html) (44 pin) board
 - added a rotary encoder to select weight and navigate menus
 - made everything user configurable without having to compile your custom firmware
 - dynamically adjust the weight offset after each grind
@@ -21,6 +22,15 @@ The included 3D Models are adapted to the Eureka Mignon XL, but the electronics 
 - added scale only mode
 
 -----------
+
+
+### Dev environment setup
+
+Setup PlatformIO in VSCode as per OS specific instructions.
+
+Note that this project is designed to be built/uploaded/monitored with the PlatformIO toolchain, rather than the ESP-IDF tools (via the PlatformIO extension navigation page).
+
+USB cable should be plugged into the USB port (not the UART port).
 
 ### Getting started
 
@@ -48,8 +58,8 @@ The included 3D Models are adapted to the Eureka Mignon XL, but the electronics 
 | white  | A-  | |
 |   | VCC  | VCC/3.3 |
 |   | GND  | GND |
-|   | SCK  | GPIO 18 |
-|   | DT  | GPIO 19|
+|   | SCK  | GPIO 7 |
+|   | DT  | GPIO 6 |
 
 #### Display
 
@@ -57,8 +67,8 @@ The included 3D Models are adapted to the Eureka Mignon XL, but the electronics 
 |---|---|
 | VCC | VCC/3.3 |
 | GND | GND |
-| SCL | GPIO 22 |
-| SDA | GPIO 21 |
+| SCL | GPIO 17 |
+| SDA | GPIO 18 |
 
 #### Relay
 
@@ -66,7 +76,7 @@ The included 3D Models are adapted to the Eureka Mignon XL, but the electronics 
 |---|---|---|
 | + | VCC/3.3 | |
 | - | GND | |
-| S | GPIO 33 | |
+| S | GPIO 14 | |
 | Middle Screw Terminal | | push button |
 | NO Screw Terminal | | push button |
 
@@ -76,9 +86,9 @@ The included 3D Models are adapted to the Eureka Mignon XL, but the electronics 
 |---|---|
 | VCC/+ | VCC/3.3 |
 | GND | GND |
-| SW | GPIO 34 |
-| DT | GPIO 23 |
-| CLK | GPIO 32 |
+| SW | GPIO 42 |
+| DT | GPIO 41 |
+| CLK | GPIO 40 |
 
 -----------
 

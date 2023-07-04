@@ -26,8 +26,8 @@ class MenuItem
 #define CUP_WEIGHT 70
 #define CUP_DETECTION_TOLERANCE 5 // 5 grams tolerance above or bellow cup weight to detect it
 
-#define LOADCELL_DOUT_PIN 19
-#define LOADCELL_SCK_PIN 18
+#define LOADCELL_DOUT_PIN 6
+#define LOADCELL_SCK_PIN 7
 
 #define LOADCELL_SCALE_FACTOR 7351
 
@@ -38,13 +38,13 @@ class MenuItem
 #define MAX_GRINDING_TIME 20000 // 20 seconds diff
 #define GRINDING_FAILED_WEIGHT_TO_RESET 150 // force on balance need to be measured to reset grinding
 
-#define GRINDER_ACTIVE_PIN 33
+#define GRINDER_ACTIVE_PIN 14
 
 #define TARE_MIN_INTERVAL 60 * 1000 // auto-tare at most once every 60 seconds
 
-#define ROTARY_ENCODER_A_PIN 32
-#define ROTARY_ENCODER_B_PIN 23
-#define ROTARY_ENCODER_BUTTON_PIN 34
+#define ROTARY_ENCODER_A_PIN 40
+#define ROTARY_ENCODER_B_PIN 41
+#define ROTARY_ENCODER_BUTTON_PIN 42
 #define ROTARY_ENCODER_VCC_PIN -1
 #define ROTARY_ENCODER_STEPS 4
 
