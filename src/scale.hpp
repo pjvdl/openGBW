@@ -54,6 +54,7 @@ extern unsigned long scaleLastUpdatedAt;
 extern unsigned long lastAction;
 extern unsigned long lastTareAt;
 extern bool scaleReady;
+extern bool calibrationError;
 extern int scaleStatus;
 extern double cupWeightEmpty;
 extern unsigned long startedGrindingAt;

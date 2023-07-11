@@ -1,10 +1,10 @@
 # OpenGBW
 
-This Project extends and adapts the original by Guillaume Besson
+This Project extends and adapts the original by Guillaume Besson. It has been adapted to operate with a [ESP32-S3-DevKitC-1](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/hw-reference/esp32s3/user-guide-devkitc-1.html) board.
+
 
 More info: https://besson.co/projects/coffee-grinder-smart-scale
 
-It has been adapted to operate with a [ESP32-S3-DevKitC-1](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/hw-reference/esp32s3/user-guide-devkitc-1.html) board.
 This mod will add GBW functionality to basically any coffe grinder that can be started and stopped manually.
 
 The included 3D Models are adapted to the Eureka Mignon XL, but the electronics can be used for any Scale.
@@ -35,7 +35,7 @@ USB cable should be plugged into the USB port (not the UART port).
 ### Getting started
 
 1) 3D print the included models for a Eureka Mignon XL or design your own
-2) flash the firmware onto an ESP32
+2) flash the firmware onto an ESP32 (see below)
 3) connect the display, relay, load cell and rotary encoder to the ESP32 according to the wiring instructions
 4) go into the menu by pressing the button of the rotary encoder and set your initial offset. -2g is a good enough starting value for a Mignon XL
 5) if you're using the Mignon's push button to activate the grinder set grinding mode to impulse. If you're connected directly to the motor relay use continuous.
@@ -43,6 +43,26 @@ USB cable should be plugged into the USB port (not the UART port).
 7) calibrate your load cell by placing a 100g weight on it and following the instructions in the menu
 8) set your dosing cup weight
 5) exit the menu, set your desired weight and place your empty dosing cup on the scale. The first grind might be off by a bit - the accuracy will increase with each grind as the scale auto adjusts the grinding offset
+
+-----------
+
+### Flashing firmware onto an ESP32
+
+This project is designed to be built on VSCode using the PlatformIO plugin. Install VSCode, the plugin and any prerequisites.
+
+The [platformio.ini](./platformio.ini) file defines the build configurations. Build the default esp32_usb configuration for a standard runtime. The debug configuration can be used to debug the firmware.
+
+To build and deploy:
+
+1) Navigate to the PlatformIO IDE from the plugin navigation sidebar
+2) Expand the build configuration that you want to use and select Build
+3) Once built, upload to the esp32 via the USB port on the esp32 (not the UART port)
+
+If you want to debug, preform the same steps using the debug configuration. The install and configuration of the PlatformIO plugin and project should have created a number of standard VSCode debug configurations.
+
+1) Build debug
+2) Upload debug
+3) F5 to run the debug configuration of your choice
 
 -----------
 

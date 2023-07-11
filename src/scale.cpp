@@ -30,6 +30,7 @@ unsigned long lastAction = 0;
 unsigned long scaleLastUpdatedAt = 0;
 unsigned long lastTareAt = 0; // if 0, should tare load cell, else represent when it was last tared
 bool scaleReady = false;
+bool calibrationError = false;
 int scaleStatus = STATUS_EMPTY;
 double cupWeightEmpty = 0; //measured actual cup weight
 unsigned long startedGrindingAt = 0;
@@ -157,6 +158,14 @@ void rotary_onButtonClick()
     {
       preferences.begin("scale", false);
       double newCalibrationValue = preferences.getDouble("calibration", newCalibrationValue) * (scaleWeight / 100);
+      if (isnan(newCalibrationValue)) {
+        Serial.println("Resetting calibration because weight is NaN");
+        newCalibrationValue = (double(LOADCELL_SCALE_FACTOR));
+        calibrationError = true;
+      }
+      else {
+        calibrationError = false;
+      }
       Serial.println(newCalibrationValue);
       preferences.putDouble("calibration", newCalibrationValue);
       preferences.end();
@@ -333,6 +342,7 @@ void scaleStatusLoop(void *p) {
           && scaleReady)
       {
         // using average over last 500ms as empty cup weight
+        wakeDisp = 1;
         Serial.println("Starting grinding");
         cupWeightEmpty = weightHistory.averageSince((int64_t)millis() - 500);
         scaleStatus = STATUS_GRINDING_IN_PROGRESS;

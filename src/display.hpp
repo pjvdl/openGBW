@@ -7,6 +7,9 @@
 extern const unsigned int SLEEP_AFTER_MS;
 extern bool dispAsleep;
 
+// Define for a larger SH1106 OLED display
+#define OLED_1_3
+
 #define DISPLAY_RESET_PIN 16
 #define DISPLAY_CLOCK_PIN 17
 #define DISPLAY_DATA_PIN 18

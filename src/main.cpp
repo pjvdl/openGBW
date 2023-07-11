@@ -17,7 +17,6 @@ long lastReconnectAttempt = 0;
 
 void setup() {
 
-  printf("Hello world!\n");
 
   /* Print chip information */
   esp_chip_info_t chip_info;
@@ -45,8 +44,12 @@ void setup() {
   printf("Minimum free heap size: %" PRIu32 " bytes\n", esp_get_minimum_free_heap_size());
 
   Serial.begin(115200);
-  while(!Serial){delay(100);}
-
+  while(!Serial){
+    delay(50);
+  }
+  Serial.println("Serial line initialised");
+  printf("Hello world!\n");
+  
   
   setupDisplay();
   setupScale();

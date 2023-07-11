@@ -1,6 +1,10 @@
 #include "display.hpp"
 
+#ifdef OLED_1_3
+U8G2_SH1106_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, DISPLAY_RESET_PIN, DISPLAY_CLOCK_PIN, DISPLAY_DATA_PIN);
+#else
 U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, DISPLAY_RESET_PIN, DISPLAY_CLOCK_PIN, DISPLAY_DATA_PIN);
+#endif
 
 TaskHandle_t DisplayTask;
 
@@ -228,7 +232,31 @@ void updateDisplay( void * parameter) {
       u8g2.setFontPosTop();
       u8g2.drawStr(0, 20, "SCALE ERROR");
     } else {
-      if (scaleStatus == STATUS_GRINDING_IN_PROGRESS) {
+      if (scaleStatus == STATUS_IN_MENU)
+      {
+        showMenu();
+      }
+      else if (scaleStatus == STATUS_IN_SUBMENU)
+      {
+        showSetting();
+      }
+      else if (calibrationError) {
+        u8g2.setFontPosTop();
+        u8g2.drawStr(0, 20, "CALIBRATION ERROR");
+        u8g2.drawStr(0, 38, "Please re-calibrate");
+      }
+      else if (scaleStatus == STATUS_TARING)
+      {
+        char buf[16];
+        u8g2.clearBuffer();
+        u8g2.setFontPosTop();
+        u8g2.setFont(u8g2_font_7x13_tr);
+        CenterPrintToScreen("Taring...", 20);
+        u8g2.setFont(u8g2_font_7x13_tr);
+        CenterPrintToScreen("Remove weight", 38);
+        u8g2.sendBuffer();
+      }
+      else if (scaleStatus == STATUS_GRINDING_IN_PROGRESS) {
         u8g2.setFontPosTop();
         u8g2.setFont(u8g2_font_7x13_tr);
         CenterPrintToScreen("Grinding...", 0);
@@ -310,27 +338,7 @@ void updateDisplay( void * parameter) {
         u8g2.setCursor(64, 64);
         snprintf(buf, sizeof(buf), "%3.1fs", (double)(finishedGrindingAt - startedGrindingAt) / 1000);
         CenterPrintToScreen(buf, 64);
-      }
-      else if (scaleStatus == STATUS_IN_MENU)
-      {
-        showMenu();
-      }
-      else if (scaleStatus == STATUS_IN_SUBMENU)
-      {
-        showSetting();
-      }
-      else if (scaleStatus == STATUS_TARING)
-      {
-        char buf[16];
-        u8g2.clearBuffer();
-        u8g2.setFontPosTop();
-        u8g2.setFont(u8g2_font_7x13_tr);
-        CenterPrintToScreen("Taring...", 20);
-        u8g2.setFont(u8g2_font_7x13_tr);
-        CenterPrintToScreen("Remove weight", 38);
-        u8g2.sendBuffer();
-      }
-    }
+      }    }
     u8g2.sendBuffer();
     // delay(100);
   }
