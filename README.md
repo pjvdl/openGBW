@@ -2,20 +2,21 @@
 
 This Project extends and adapts the original by Guillaume Besson. It has been adapted to operate with a [ESP32-S3-DevKitC-1](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/hw-reference/esp32s3/user-guide-devkitc-1.html) board.
 
-**Note that the 3D base is designed to be used with a modified portafiller mount that must be fabricated from sheet stainless steel (1mm thick or similar).**
+**Note that the 3D base is designed to be used with a modified portafilter mount that must be fabricated from sheet stainless steel (1mm thick or similar). One possible design for this is included in the blender model.**
 
 More info: https://besson.co/projects/coffee-grinder-smart-scale
 
 This mod will add GBW functionality to basically any coffe grinder that can be started and stopped manually.
 
-The included 3D Models are adapted to the Eureka Mignon XL, but the electronics can be used for any Scale.
+The included 3D Models are adapted to the Eureka Mignon XL, and Eureka Mignon Classico, but the electronics can be used for any Scale.
 
 -----------
 
 ### Differences to the original
 
 - changed IO pins to match [ESP32-S3-DevKitC-1](https://docs.platformio.org/en/latest/boards/espressif32/esp32-s3-devkitc-1.html) (44 pin) board
-- updated 3D base to suit older Eureka Mignon and to include mount points for electronic components
+- updated 3D base to suit older Eureka Mignon (now known as the Mignon Classico) and to include mount points for electronic components
+- The older Mignon doesn't include a 5V power supply, so we use a VREG7805 linear power regulator to take a 5V power supply from the 12V DC power, connected via a soldered 12V takeoff. We could use a buck converter here instead, but a linear converter is simpler and heat dissipation shouldn't be an issue with the small currents involved. 
 - added a rotary encoder to select weight and navigate menus
 - made everything user configurable without having to compile your custom firmware
 - dynamically adjust the weight offset after each grind
@@ -121,7 +122,7 @@ If you want to debug, preform the same steps using the debug configuration. The 
 1x 1.3" OLED Display  
 1x KY-040 rotary encoder  
 1x 500g load cell 47 x 12 x 6mm
-1x VREG7805 (if there is not 5V power supply available in grinder)  
+1x VREG7805 
 
 various jumper cables  
 a few WAGO or similar connectors
