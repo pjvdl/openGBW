@@ -72,6 +72,7 @@ void showOffsetMenu(){
   u8g2.setFont(u8g2_font_7x13_tr);
   snprintf(buf, sizeof(buf), "%3.2fg", offset);
   CenterPrintToScreen(buf, 28);
+  CenterPrintToScreen("(Offset to stop before set weight)", 56);
   u8g2.sendBuffer();
 }
 
@@ -308,8 +309,9 @@ void updateDisplay( void * parameter) {
 
         u8g2.setFontPosTop();
         u8g2.setFont(u8g2_font_7x13_tr);
-        CenterPrintToScreen("Press the balance", 32);
-        CenterPrintToScreen("to reset", 42);
+        CenterPrintToScreen("Remove the", 32);
+        CenterPrintToScreen("portafilter", 42);
+        CenterPrintToScreen("to reset", 52);
       } else if (scaleStatus == STATUS_GRINDING_FINISHED) {
 
         u8g2.setFontPosTop();

@@ -32,7 +32,7 @@ Setup PlatformIO in VSCode as per OS specific instructions.
 
 Note that this project is designed to be built/uploaded/monitored with the PlatformIO toolchain, rather than the ESP-IDF tools (via the PlatformIO extension navigation page).
 
-USB cable should be plugged into the USB port (not the UART port).
+USB cable can be connected to the USB or UART ports for upload, but should be plugged into the UART port for the serial monitor (ie. serial.println) to output to the serial terminal.
 
 ### Getting started
 
@@ -58,7 +58,7 @@ To build and deploy:
 
 1) Navigate to the PlatformIO IDE from the plugin navigation sidebar
 2) Expand the build configuration that you want to use and select Build
-3) Once built, upload to the esp32 via the USB port on the esp32 (not the UART port)
+3) Once built, upload to the esp32 via the USB port on the esp32 (UART port also works?)
 
 If you want to debug, preform the same steps using the debug configuration. The install and configuration of the PlatformIO plugin and project should have created a number of standard VSCode debug configurations.
 

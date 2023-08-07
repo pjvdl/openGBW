@@ -432,7 +432,8 @@ void scaleStatusLoop(void *p) {
         newOffset = false;
       }
     } else if (scaleStatus == STATUS_GRINDING_FAILED) {
-      if (scaleWeight >= GRINDING_FAILED_WEIGHT_TO_RESET) {
+      // Will reset when the portafilter is removed from the scale
+      if (scaleWeight < GRINDING_FAILED_WEIGHT_TO_RESET) {
         Serial.println("Going back to empty");
         scaleStatus = STATUS_EMPTY;
         continue;
