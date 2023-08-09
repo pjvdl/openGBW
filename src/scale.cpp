@@ -17,6 +17,7 @@ TaskHandle_t ScaleTask;
 TaskHandle_t ScaleStatusTask;
 
 double scaleWeight = 0; //current weight
+double calibrationFactor = 1; // current calibration of scale
 bool wakeDisp = false; //wake up display with rotary click
 double setWeight = 0; //desired amount of coffee
 double setCupWeight = 0; //cup weight set by user
@@ -45,14 +46,14 @@ int currentSetting;
 int encoderValue = 0;
 int menuItemsCount = 8;
 MenuItem menuItems[8] = {
-    {1, false, "Manual Grind", 0},
-    {2, false, "Cup weight", 1, &setCupWeight},
-    {3, false, "Calibrate", 0},
-    {4, false, "Offset", 0.1, &offset},
-    {5, false, "Scale Mode", 0},
-    {6, false, "Grinding Mode", 0},
-    {7, false, "Exit", 0},
-    {8, false, "Reset", 0}}; // structure is mostly useless for now, plan on making menu easier to customize later
+    {MENU_ITEM_MANUAL_GRIND, false, "Manual Grind", 0},
+    {MENU_ITEM_CUP_WEIGHT, false, "Cup weight", 1, &setCupWeight},
+    {MENU_ITEM_CALIBRATE, false, "Calibrate", 0},
+    {MENU_ITEM_OFFSET, false, "Offset", 0.1, &offset},
+    {MENU_ITEM_SCALE_MODE, false, "Scale Mode", 0},
+    {MENU_ITEM_GRINDING_MODE, false, "Grinding Mode", 0},
+    {MENU_ITEM_EXIT, false, "Exit", 0},
+    {MENU_ITEM_RESET, false, "Reset", 0}}; // structure is mostly useless for now, plan on making menu easier to customize later
 
 void grinderToggle()
 {
@@ -80,68 +81,70 @@ void rotary_onButtonClick()
 
   if(scaleStatus == STATUS_EMPTY){
     scaleStatus = STATUS_IN_MENU;
-    currentMenuItem = 0;
+    currentMenuItem = MENU_ITEM_MANUAL_GRIND;
     rotaryEncoder.setAcceleration(0);
   }
   else if(scaleStatus == STATUS_IN_MENU){
-    if(currentMenuItem == 6){
+    if(currentMenuItem == MENU_ITEM_EXIT){
       scaleStatus = STATUS_EMPTY;
       rotaryEncoder.setAcceleration(100);
       Serial.println("Exited Menu");
     }
-    else if (currentMenuItem == 0)
+    else if (currentMenuItem == MENU_ITEM_MANUAL_GRIND)
     {
       grinderToggle();
-      currentSetting = 0;
+      currentSetting = MENU_ITEM_MANUAL_GRIND;
       Serial.println("Manual Grind Menu");
     }
-    else if (currentMenuItem == 3){
+    else if (currentMenuItem == MENU_ITEM_OFFSET){
       scaleStatus = STATUS_IN_SUBMENU;
-      currentSetting = 3;
+      currentSetting = MENU_ITEM_OFFSET;
       Serial.println("Offset Menu");
     }
-    else if (currentMenuItem == 1)
+    else if (currentMenuItem == MENU_ITEM_CUP_WEIGHT)
     {
       scaleStatus = STATUS_IN_SUBMENU;
-      currentSetting = 1;
+      currentSetting = MENU_ITEM_CUP_WEIGHT;
       Serial.println("Cup Menu");
     }
-    else if (currentMenuItem == 2)
+    else if (currentMenuItem == MENU_ITEM_CALIBRATE)
     {
       scaleStatus = STATUS_IN_SUBMENU;
-      currentSetting = 2;
+      currentSetting = MENU_ITEM_CALIBRATE;
       Serial.println("Calibration Menu");
+      printPreferencesToSerial();
     }
-    else if (currentMenuItem == 4)
+    else if (currentMenuItem == MENU_ITEM_SCALE_MODE)
     {
       scaleStatus = STATUS_IN_SUBMENU;
-      currentSetting = 4;
+      currentSetting = MENU_ITEM_SCALE_MODE;
       Serial.println("Scale Mode Menu");
     }
-    else if (currentMenuItem == 5)
+    else if (currentMenuItem == MENU_ITEM_GRINDING_MODE)
     {
       scaleStatus = STATUS_IN_SUBMENU;
-      currentSetting = 5;
+      currentSetting = MENU_ITEM_GRINDING_MODE;
       Serial.println("Grind Mode Menu");
     }
-    else if (currentMenuItem == 7)
+    else if (currentMenuItem == MENU_ITEM_RESET)
     {
       scaleStatus = STATUS_IN_SUBMENU;
-      currentSetting = 7;
+      currentSetting = MENU_ITEM_RESET;
       greset = false;
       Serial.println("Reset Menu");
+      printPreferencesToSerial();
     }
   }
   else if(scaleStatus == STATUS_IN_SUBMENU){
-    if(currentSetting == 3){
+    if(currentSetting == MENU_ITEM_OFFSET){
 
       preferences.begin("scale", false);
       preferences.putDouble("offset", offset);
       preferences.end();
       scaleStatus = STATUS_IN_MENU;
-      currentSetting = -1;
+      currentSetting = MENU_ITEM_NONE;
     }
-    else if (currentSetting == 1)
+    else if (currentSetting == MENU_ITEM_CUP_WEIGHT)
     {
       if(scaleWeight > 30){       //prevent accidental setting with no cup
         setCupWeight = scaleWeight;
@@ -151,45 +154,32 @@ void rotary_onButtonClick()
         preferences.putDouble("cup", setCupWeight);
         preferences.end();
         scaleStatus = STATUS_IN_MENU;
-        currentSetting = -1;
+        currentSetting = MENU_ITEM_NONE;
       }
     }
-    else if (currentSetting == 2)
+    else if (currentSetting == MENU_ITEM_CALIBRATE)
     {
-      preferences.begin("scale", false);
-      double newCalibrationValue = preferences.getDouble("calibration", newCalibrationValue) * (scaleWeight / 100);
-      if (isnan(newCalibrationValue)) {
-        Serial.println("Resetting calibration because weight is NaN");
-        newCalibrationValue = (double(LOADCELL_SCALE_FACTOR));
-        calibrationError = true;
-      }
-      else {
-        calibrationError = false;
-      }
-      Serial.println(newCalibrationValue);
-      preferences.putDouble("calibration", newCalibrationValue);
-      preferences.end();
-      loadcell.set_scale(newCalibrationValue);
+      calibrateScale();
       scaleStatus = STATUS_IN_MENU;
-      currentSetting = -1;
+      currentSetting = MENU_ITEM_NONE;
     }
-    else if (currentSetting == 4)
+    else if (currentSetting == MENU_ITEM_SCALE_MODE)
     {
       preferences.begin("scale", false);
       preferences.putBool("scaleMode", scaleMode);
       preferences.end();
       scaleStatus = STATUS_IN_MENU;
-      currentSetting = -1;
+      currentSetting = MENU_ITEM_NONE;
     }
-    else if (currentSetting == 5)
+    else if (currentSetting == MENU_ITEM_GRINDING_MODE)
     {
       preferences.begin("scale", false);
       preferences.putBool("grindMode", grindMode);
       preferences.end();
       scaleStatus = STATUS_IN_MENU;
-      currentSetting = -1;
+      currentSetting = MENU_ITEM_NONE;
     }
-    else if (currentSetting == 7)
+    else if (currentSetting == MENU_ITEM_RESET)
     {
       if(greset){
         preferences.begin("scale", false);
@@ -205,12 +195,13 @@ void rotary_onButtonClick()
         grindMode = true;
         preferences.putBool("grindMode", true);
 
-        loadcell.set_scale((double)LOADCELL_SCALE_FACTOR);
+        calibrationFactor = (double(LOADCELL_SCALE_FACTOR));
+        loadcell.set_scale(calibrationFactor);
         preferences.end();
       }
       
       scaleStatus = STATUS_IN_MENU;
-      currentSetting = -1;
+      currentSetting = MENU_ITEM_NONE;
     }
   }
 }
@@ -247,7 +238,7 @@ void rotary_loop()
       Serial.println(currentMenuItem);
     }
     else if(scaleStatus == STATUS_IN_SUBMENU){
-      if(currentSetting == 3){ //offset menu
+      if(currentSetting == MENU_ITEM_OFFSET){ //offset menu
         int newValue = rotaryEncoder.readEncoder();
         Serial.print("Value: ");
 
@@ -258,14 +249,14 @@ void rotary_loop()
           offset = setWeight;     //prevent nonsensical offsets
         }
       }
-      else if(currentSetting == 4){
+      else if(currentSetting == MENU_ITEM_SCALE_MODE){
         scaleMode = !scaleMode;
       }
-      else if (currentSetting == 5)
+      else if (currentSetting == MENU_ITEM_GRINDING_MODE)
       {
         grindMode = !grindMode;
       }
-      else if (currentSetting == 7)
+      else if (currentSetting == MENU_ITEM_RESET)
       {
         greset = !greset;
       }
@@ -290,9 +281,26 @@ void tareScale() {
   lastTareAt = millis();
 }
 
+void calibrateScale() {
+  preferences.begin("scale", false);
+  double existingCalibrationFactor = preferences.getDouble("calibration");
+  calibrationFactor = existingCalibrationFactor * (scaleWeight / 100);
+  Serial.printf("New calibration: %f. Existing calibration: %f, Scale weight: %f\n", calibrationFactor, existingCalibrationFactor, scaleWeight);
+  if (isnan(calibrationFactor) || calibrationFactor == 0.0) {
+    Serial.println("Resetting calibration because weight is NaN or 0.0");
+    calibrationFactor = (double(LOADCELL_SCALE_FACTOR));
+    calibrationError = true;
+  }
+  else {
+    calibrationError = false;
+    preferences.putDouble("calibration", calibrationFactor);
+  }
+  loadcell.set_scale(calibrationFactor);
+  preferences.end();
+}
+
 void updateScale( void * parameter) {
   float lastEstimate;
-
 
   for (;;) {
     if (lastTareAt == 0) {
@@ -302,7 +310,7 @@ void updateScale( void * parameter) {
       tareScale();
     }
     if (loadcell.wait_ready_timeout(300)) {
-      lastEstimate = kalmanFilter.updateEstimate(loadcell.get_units(5));
+      lastEstimate = kalmanFilter.updateEstimate(loadcell.get_units(LOADCELL_NUMBER_READINGS)); // Update the kalman filter, but don't use the value
       scaleWeight = lastEstimate;
       scaleLastUpdatedAt = millis();
       weightHistory.push(scaleWeight);
@@ -313,8 +321,6 @@ void updateScale( void * parameter) {
     }
   }
 }
-
-
 
 void scaleStatusLoop(void *p) {
   double tenSecAvg;
@@ -438,8 +444,7 @@ void scaleStatusLoop(void *p) {
         scaleStatus = STATUS_EMPTY;
         continue;
       }
-    }
-    else if (scaleStatus == STATUS_TARING) {
+    } else if (scaleStatus == STATUS_TARING) {
       if (lastTareAt != 0) {
         scaleStatus = STATUS_EMPTY;
       }
@@ -450,6 +455,16 @@ void scaleStatusLoop(void *p) {
 }
 
 
+void printPreferencesToSerial() {
+        preferences.begin("scale", false);
+        Serial.printf("Calibration: %f\n", preferences.getDouble("calibration"));
+        Serial.printf("Dose weight: %f\n", preferences.getDouble("setWeight"));
+        Serial.printf("Offset time: %f\n", preferences.getDouble("offset"));
+        Serial.printf("Cup weight: %f\n", preferences.getDouble("cup"));
+        Serial.printf("Scale mode: %d\n", preferences.getBool("scaleMode"));
+        Serial.printf("Grind mode: %d\n", preferences.getBool("grindMode"));
+        preferences.end();  
+}
 
 void setupScale() {
   rotaryEncoder.begin();
@@ -476,7 +491,7 @@ void setupScale() {
 
   preferences.begin("scale", false);
   
-  double scaleFactor = preferences.getDouble("calibration", (double)LOADCELL_SCALE_FACTOR);
+  calibrationFactor = preferences.getDouble("calibration", (double)LOADCELL_SCALE_FACTOR);
   setWeight = preferences.getDouble("setWeight", (double)COFFEE_DOSE_WEIGHT);
   offset = preferences.getDouble("offset", (double)COFFEE_DOSE_OFFSET);
   setCupWeight = preferences.getDouble("cup", (double)CUP_WEIGHT);
@@ -485,7 +500,7 @@ void setupScale() {
 
   preferences.end();
   
-  loadcell.set_scale(scaleFactor);
+  loadcell.set_scale(calibrationFactor);
 
   xTaskCreatePinnedToCore(
       updateScale, /* Function to implement the task */

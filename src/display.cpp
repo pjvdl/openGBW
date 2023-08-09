@@ -179,28 +179,28 @@ void showResetMenu()
 }
 
 void showSetting(){
-  if(currentSetting == 3){
+  if(currentSetting == MENU_ITEM_OFFSET){
     showOffsetMenu();
   }
-  else if(currentSetting == 0){
+  else if(currentSetting == MENU_ITEM_MANUAL_GRIND){
     showManualGrindMenu();
   }
-  else if(currentSetting == 1){
+  else if(currentSetting == MENU_ITEM_CUP_WEIGHT){
     showCupMenu();
   }
-  else if (currentSetting == 2)
+  else if (currentSetting == MENU_ITEM_CALIBRATE)
   {
     showCalibrationMenu();
   }
-  else if (currentSetting == 4)
+  else if (currentSetting == MENU_ITEM_SCALE_MODE)
   {
     showScaleModeMenu();
   }
-  else if (currentSetting == 5)
+  else if (currentSetting == MENU_ITEM_GRINDING_MODE)
   {
     showGrindModeMenu();
   }
-  else if (currentSetting == 7)
+  else if (currentSetting == MENU_ITEM_RESET)
   {
     showResetMenu();
   }

@@ -21,8 +21,7 @@ MathBuffer<double, 100> weightHistory;
 
 unsigned long scaleLastUpdatedAt = 0;
 bool scaleReady = false;
-float calibrationFactor = 4000.0
-;
+
 // void tareScale() {
 //   Serial.println("Taring loadcell");
 //   loadcell.tare(TARE_MEASURES);
