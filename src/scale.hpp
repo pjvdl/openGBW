@@ -36,7 +36,8 @@ class MenuItem
 #define SIGNIFICANT_WEIGHT_CHANGE 5 // 5 grams changes are used to detect a significant change
 #define COFFEE_DOSE_WEIGHT 18
 #define COFFEE_DOSE_OFFSET -2.5
-#define MAX_GRINDING_TIME 20000 // 20 seconds diff
+#define MAX_GRINDING_TIME 30000 // 30 seconds diff
+#define GRINDING_DELAY_TOLERANCE 5000 // 5 seconds
 #define GRINDING_FAILED_WEIGHT_TO_RESET 150 // force on balance need to be measured to reset grinding
 
 #define GRINDER_ACTIVE_PIN 14

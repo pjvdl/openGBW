@@ -385,7 +385,7 @@ void scaleStatusLoop(void *p) {
         continue;
       }
 
-      if ( ((millis() - startedGrindingAt) > 3000) // started grinding at least 3s ago
+      if ( ((millis() - startedGrindingAt) > GRINDING_DELAY_TOLERANCE) // started grinding at least 3s ago
             && ((scaleWeight - weightHistory.firstValueOlderThan(millis() - 2000)) < 0.5) // less than a gram has been grinded in the last 2 second
             && !scaleMode) {
         Serial.println("Failed because no change in weight was detected");
