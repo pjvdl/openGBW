@@ -1,4 +1,21 @@
-# OpenGBW
+OpenGBW
+=======
+
+- [OpenGBW](#opengbw)
+- [Differences to the original](#differences-to-the-original)
+- [Dev environment setup](#dev-environment-setup)
+- [Getting started](#getting-started)
+- [Flashing firmware onto an ESP32](#flashing-firmware-onto-an-esp32)
+- [Wiring](#wiring)
+  - [Load Cell](#load-cell)
+  - [Display](#display)
+  - [Relay](#relay)
+  - [Rotary Encoder](#rotary-encoder)
+- [BOM](#bom)
+- [3D Files](#3d-files)
+- [Todo](#todo)
+- [Troubleshooting](#troubleshooting)
+  - [Can't upload](#cant-upload)
 
 This Project extends and adapts the original by Guillaume Besson. It has been adapted to operate with a [ESP32-S3-DevKitC-1](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/hw-reference/esp32s3/user-guide-devkitc-1.html) board.
 
@@ -12,7 +29,7 @@ The included 3D Models are adapted to the Eureka Mignon XL, and Eureka Mignon Cl
 
 -----------
 
-### Differences to the original
+# Differences to the original
 
 - changed IO pins to match [ESP32-S3-DevKitC-1](https://docs.platformio.org/en/latest/boards/espressif32/esp32-s3-devkitc-1.html) (44 pin) board
 - updated 3D base to suit older Eureka Mignon (now known as the Mignon Classico) and to include mount points for electronic components
@@ -27,7 +44,7 @@ The included 3D Models are adapted to the Eureka Mignon XL, and Eureka Mignon Cl
 -----------
 
 
-### Dev environment setup
+# Dev environment setup
 
 Setup PlatformIO in VSCode as per OS specific instructions.
 
@@ -35,7 +52,7 @@ Note that this project is designed to be built/uploaded/monitored with the Platf
 
 USB cable can be connected to the USB or UART ports for upload, but should be plugged into the UART port for the serial monitor (ie. serial.println) to output to the serial terminal.
 
-### Getting started
+# Getting started
 
 1) 3D print the included models for a Eureka Mignon XL or design your own
 2) flash the firmware onto an ESP32 (see below)
@@ -49,7 +66,7 @@ USB cable can be connected to the USB or UART ports for upload, but should be pl
 
 -----------
 
-### Flashing firmware onto an ESP32
+# Flashing firmware onto an ESP32
 
 This project is designed to be built on VSCode using the PlatformIO plugin. Install VSCode, the plugin and any prerequisites.
 
@@ -69,9 +86,9 @@ If you want to debug, preform the same steps using the debug configuration. The 
 
 -----------
 
-### Wiring
+# Wiring
 
-#### Load Cell
+## Load Cell
 
 | Load Cell  | HX711 | ESP32  |
 |---|---|---|
@@ -84,7 +101,7 @@ If you want to debug, preform the same steps using the debug configuration. The 
 |   | SCK  | GPIO 7 |
 |   | DT  | GPIO 6 |
 
-#### Display
+## Display
 
 | Display | ESP32 |
 |---|---|
@@ -93,7 +110,7 @@ If you want to debug, preform the same steps using the debug configuration. The 
 | SCL | GPIO 17 |
 | SDA | GPIO 18 |
 
-#### Relay
+## Relay
 
 | Relay | ESP32 | Grinder |
 |---|---|---|
@@ -103,7 +120,7 @@ If you want to debug, preform the same steps using the debug configuration. The 
 | Middle Screw Terminal | | push button |
 | NO Screw Terminal | | push button |
 
-#### Rotary Encoder
+## Rotary Encoder
 
 | Encoder | ESP32 |
 |---|---|
@@ -115,7 +132,7 @@ If you want to debug, preform the same steps using the debug configuration. The 
 
 -----------
 
-### BOM
+# BOM
 
 1x ESP32-S3-DevKitC-1  
 1x HX711 load cell amplifier  
@@ -129,7 +146,7 @@ a few WAGO or similar connectors
 
 -----------
 
-### 3D Files
+# 3D Files
 
 You can find the 3D STL models on thangs.com
 
@@ -139,10 +156,16 @@ These _should_ fit any grinder in the Mignon line up as far as I can tell.
 
 There's also STLs for a universal scale in the repo, though it is mostly meant as a starting off point to create your own. You can use the provided files, but you'll need to print an external enclosure for the ESP32, relay and any other components your setup might need.
 
-### Todo:
+# Todo
 
 - ~add option to change grind start/stop behaviour. Right now it pulses for 50ms, this works if its hooked up to the push button of a Eureka grinder. Other models might need constant input while grinding~ done
 - add mounting options and cable routing channels to base
 - more detailed instructions (with pictures!)
 - other grinders?
 - ???
+
+# Troubleshooting
+
+## Can't upload
+
+ I now found in one of the espressif docs that I need to press the BOOT button and if that doesn't help, keep the BOOT button pressed and press the RST button as well. 

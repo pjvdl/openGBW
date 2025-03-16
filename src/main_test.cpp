@@ -56,7 +56,7 @@ void updateScale( void * parameter) {
 
 
 void setupScale() {
-  preferences.begin("loadcell", false);
+  preferences.begin("loadcell", true);
   double scaleFactor = preferences.getDouble("calibration", (double)LOADCELL_SCALE_FACTOR);
   preferences.end();
   

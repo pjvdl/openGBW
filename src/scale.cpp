@@ -84,6 +84,12 @@ void rotary_onButtonClick()
     currentMenuItem = MENU_ITEM_MANUAL_GRIND;
     rotaryEncoder.setAcceleration(0);
   }
+  else if(scaleStatus == STATUS_MANUAL_IN_PROGRESS) {
+    grinderToggle();
+    scaleStatus = STATUS_GRINDING_FINISHED;
+    finishedGrindingAt = millis();
+    Serial.println("Finished Grinding");
+  }
   else if(scaleStatus == STATUS_IN_MENU){
     if(currentMenuItem == MENU_ITEM_EXIT){
       scaleStatus = STATUS_EMPTY;
@@ -92,7 +98,8 @@ void rotary_onButtonClick()
     }
     else if (currentMenuItem == MENU_ITEM_MANUAL_GRIND)
     {
-      grinderToggle();
+      // grinderToggle();
+      scaleStatus = STATUS_MANUAL_READY;
       currentSetting = MENU_ITEM_MANUAL_GRIND;
       Serial.println("Manual Grind Menu");
     }
@@ -242,7 +249,7 @@ void rotary_loop()
         int newValue = rotaryEncoder.readEncoder();
         Serial.print("Value: ");
 
-        offset += ((float)newValue - (float)encoderValue) * encoderDir / 100;
+        offset += ((float)newValue - (float)encoderValue) * encoderDir / 10;
         encoderValue = newValue;
 
         if(abs(offset) >= setWeight){
@@ -336,18 +343,26 @@ void scaleStatusLoop(void *p) {
       if (((millis() - lastTareAt) > TARE_MIN_INTERVAL)
           && (ABS(tenSecAvg) >= 0.1) 
           && (tenSecAvg < 3) 
-          && (scaleWeight < 3)) {
+          && (scaleWeight < 1000)) {
         // tare if: not tared recently, more than 0.2 away from 0, less than 3 grams total (also works for negative weight)
         lastTareAt = 0;
         scaleStatus = STATUS_TARING;
       }
 
-      if (ABS(weightHistory.minSince((int64_t)millis() - 1000) - setCupWeight) < CUP_DETECTION_TOLERANCE 
-          && ABS(weightHistory.maxSince((int64_t)millis() - 1000) - setCupWeight) < CUP_DETECTION_TOLERANCE
+      if (ABS(weightHistory.minSince((int64_t)millis() - 1000)) > WAKE_UP_WEIGHT_TOLERANCE 
+        && ABS(weightHistory.maxSince((int64_t)millis() - 1000)) > WAKE_UP_WEIGHT_TOLERANCE
           && (lastTareAt != 0)
           && scaleReady)
       {
-        // using average over last 500ms as empty cup weight
+        wakeDisp = 1;
+      }
+
+      if (ABS(weightHistory.minSince((int64_t)millis() - 1000) - setCupWeight) < CUP_DETECTION_TOLERANCE 
+        && ABS(weightHistory.maxSince((int64_t)millis() - 1000) - setCupWeight) < CUP_DETECTION_TOLERANCE
+        && (lastTareAt != 0)
+        && scaleReady)
+      {
+      // using average over last 500ms as empty cup weight
         wakeDisp = 1;
         Serial.println("Starting grinding");
         cupWeightEmpty = weightHistory.averageSince((int64_t)millis() - 500);
@@ -361,7 +376,20 @@ void scaleStatusLoop(void *p) {
         grinderToggle();
         continue;
       }
-    } else if (scaleStatus == STATUS_GRINDING_IN_PROGRESS) {
+    } else if (scaleStatus == STATUS_MANUAL_READY) {
+      Serial.println("Starting grinding");
+      cupWeightEmpty = weightHistory.averageSince((int64_t)millis() - 500);
+      scaleStatus = STATUS_MANUAL_IN_PROGRESS;
+      
+      if(!scaleMode){
+        newOffset = true;
+        startedGrindingAt = millis();
+      }
+      
+      grinderToggle();
+      continue;
+
+    } else if (scaleStatus == STATUS_GRINDING_IN_PROGRESS || scaleStatus == STATUS_MANUAL_IN_PROGRESS) {
       if (!scaleReady) {
         
         grinderToggle();
@@ -456,7 +484,7 @@ void scaleStatusLoop(void *p) {
 
 
 void printPreferencesToSerial() {
-        preferences.begin("scale", false);
+        preferences.begin("scale", true);
         Serial.printf("Calibration: %f\n", preferences.getDouble("calibration"));
         Serial.printf("Dose weight: %f\n", preferences.getDouble("setWeight"));
         Serial.printf("Offset time: %f\n", preferences.getDouble("offset"));
@@ -489,7 +517,7 @@ void setupScale() {
   pinMode(GRINDER_ACTIVE_PIN, OUTPUT);
   digitalWrite(GRINDER_ACTIVE_PIN, 0);
 
-  preferences.begin("scale", false);
+  preferences.begin("scale", true);
   
   calibrationFactor = preferences.getDouble("calibration", (double)LOADCELL_SCALE_FACTOR);
   setWeight = preferences.getDouble("setWeight", (double)COFFEE_DOSE_WEIGHT);

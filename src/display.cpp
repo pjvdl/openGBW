@@ -72,7 +72,7 @@ void showOffsetMenu(){
   u8g2.setFont(u8g2_font_7x13_tr);
   snprintf(buf, sizeof(buf), "%3.2fg", offset);
   CenterPrintToScreen(buf, 28);
-  CenterPrintToScreen("(Offset to stop before set weight)", 56);
+  CenterPrintToScreen("(Offset to stop before set weight)", 48);
   u8g2.sendBuffer();
 }
 
@@ -82,10 +82,26 @@ void showManualGrindMenu(){
   u8g2.clearBuffer();
   u8g2.setFontPosTop();
   u8g2.setFont(u8g2_font_7x13_tr);
-  CenterPrintToScreen("Click to start", 20);
-  u8g2.setFont(u8g2_font_7x13_tr);
-  CenterPrintToScreen("grinding", 38);
-  u8g2.sendBuffer();
+  CenterPrintToScreen("Click to stop", 0);
+
+  u8g2.setFontPosCenter();
+  u8g2.setFont(u8g2_font_inr16_mr);
+  snprintf(buf, sizeof(buf), "%3.1fg", scaleWeight - cupWeightEmpty);
+  CenterPrintToScreen(buf, 32);
+
+  // u8g2.setFontPosCenter();
+  // u8g2.setFont(u8g2_font_unifont_t_symbols);
+  // u8g2.drawGlyph(64, 32, 0x2794);
+
+  u8g2.setFontPosBottom();
+  u8g2.setFont(u8g2_font_7x14B_tf);
+  snprintf(buf, sizeof(buf), "%3.1fg", setWeight);
+  RightPrintToScreen(buf, 64);
+
+  u8g2.setFontPosBottom();
+  u8g2.setFont(u8g2_font_7x14B_tf);
+  snprintf(buf, sizeof(buf), "%3.1fs", startedGrindingAt > 0 ? (double)(millis() - startedGrindingAt) / 1000 : 0);
+  LeftPrintToScreen(buf, 64);
 }
 
 
@@ -246,6 +262,9 @@ void updateDisplay( void * parameter) {
         u8g2.drawStr(0, 20, "CALIBRATION ERROR");
         u8g2.drawStr(0, 38, "Please re-calibrate");
       }
+      else if (scaleStatus == STATUS_MANUAL_IN_PROGRESS) {
+        showManualGrindMenu();
+      }
       else if (scaleStatus == STATUS_TARING)
       {
         char buf[16];
@@ -262,27 +281,24 @@ void updateDisplay( void * parameter) {
         u8g2.setFont(u8g2_font_7x13_tr);
         CenterPrintToScreen("Grinding...", 0);
 
-
         u8g2.setFontPosCenter();
-        u8g2.setFont(u8g2_font_7x14B_tf);
-        u8g2.setCursor(3, 32);
+        u8g2.setFont(u8g2_font_inr16_mr);
         snprintf(buf, sizeof(buf), "%3.1fg", scaleWeight - cupWeightEmpty);
-        u8g2.print(buf);
+        CenterPrintToScreen(buf, 32);
 
-        u8g2.setFontPosCenter();
-        u8g2.setFont(u8g2_font_unifont_t_symbols);
-        u8g2.drawGlyph(64, 32, 0x2794);
-
-        u8g2.setFontPosCenter();
-        u8g2.setFont(u8g2_font_7x14B_tf);
-        u8g2.setCursor(84, 32);
-        snprintf(buf, sizeof(buf), "%3.1fg", setWeight);
-        u8g2.print(buf);
+        // u8g2.setFontPosCenter();
+        // u8g2.setFont(u8g2_font_unifont_t_symbols);
+        // u8g2.drawGlyph(64, 32, 0x2794);
 
         u8g2.setFontPosBottom();
-        u8g2.setFont(u8g2_font_7x13_tr);
+        u8g2.setFont(u8g2_font_7x14B_tf);
+        snprintf(buf, sizeof(buf), "%3.1fg", setWeight);
+        RightPrintToScreen(buf, 64);
+
+        u8g2.setFontPosBottom();
+        u8g2.setFont(u8g2_font_7x14B_tf);
         snprintf(buf, sizeof(buf), "%3.1fs", startedGrindingAt > 0 ? (double)(millis() - startedGrindingAt) / 1000 : 0);
-        CenterPrintToScreen(buf, 64);
+        LeftPrintToScreen(buf, 64);
       } else if (scaleStatus == STATUS_EMPTY) {
         u8g2.setFontPosTop();
         u8g2.setFont(u8g2_font_7x13_tr);

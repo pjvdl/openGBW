@@ -22,9 +22,12 @@ class MenuItem
 #define STATUS_IN_SUBMENU 5
 #define STATUS_IN_SUBSUBMENU 6
 #define STATUS_TARING 7
+#define STATUS_MANUAL_READY 8
+#define STATUS_MANUAL_IN_PROGRESS 9
 
-#define CUP_WEIGHT 570
-#define CUP_DETECTION_TOLERANCE 5 // 5 grams tolerance above or bellow cup weight to detect it
+#define CUP_WEIGHT 574
+#define CUP_DETECTION_TOLERANCE 10 // 10 grams tolerance above or bellow cup weight to detect it
+#define WAKE_UP_WEIGHT_TOLERANCE 300 // 300 grams tolerance to wake up display
 
 #define LOADCELL_DOUT_PIN 6
 #define LOADCELL_SCK_PIN 7
@@ -35,7 +38,7 @@ class MenuItem
 #define TARE_MEASURES 20 // use the average of measure for taring
 #define SIGNIFICANT_WEIGHT_CHANGE 5 // 5 grams changes are used to detect a significant change
 #define COFFEE_DOSE_WEIGHT 18
-#define COFFEE_DOSE_OFFSET -2.5
+#define COFFEE_DOSE_OFFSET -1.0
 #define MAX_GRINDING_TIME 30000 // 30 seconds diff
 #define GRINDING_DELAY_TOLERANCE 5000 // 5 seconds
 #define GRINDING_FAILED_WEIGHT_TO_RESET 150 // force on balance need to be measured to reset grinding
