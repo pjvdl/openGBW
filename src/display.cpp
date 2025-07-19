@@ -262,6 +262,19 @@ void updateDisplay( void * parameter) {
         u8g2.drawStr(0, 20, "CALIBRATION ERROR");
         u8g2.drawStr(0, 38, "Please re-calibrate");
       }
+      else if (scaleStatus == STATUS_OFFSET_WARNING) {
+        u8g2.setFontPosCenter();
+        u8g2.setFont(u8g2_font_7x14B_tf);
+        CenterPrintToScreen("OFFSET WARNING", 12);
+
+        u8g2.setFontPosBottom();
+        u8g2.setFont(u8g2_font_7x14B_tf);
+        CenterPrintToScreen("Click to adjust", 48);
+
+        u8g2.setFontPosBottom();
+        u8g2.setFont(u8g2_font_7x14B_tf);
+        CenterPrintToScreen("the Offset", 64);
+      }
       else if (scaleStatus == STATUS_MANUAL_IN_PROGRESS) {
         showManualGrindMenu();
       }
@@ -302,21 +315,24 @@ void updateDisplay( void * parameter) {
       } else if (scaleStatus == STATUS_EMPTY) {
         u8g2.setFontPosTop();
         u8g2.setFont(u8g2_font_7x13_tr);
-        CenterPrintToScreen("Weight:", 0);
+        CenterPrintToScreen("Ready to Grind", 0);
+
+        u8g2.setFont(u8g2_font_inr16_mr);
+        u8g2.setFontPosCenter();
+        u8g2.setCursor(5, 50);
+        snprintf(buf2, sizeof(buf2), "%3.1fg", setWeight);
+        CenterPrintToScreen(buf2, 32);
+
+        u8g2.setFont(u8g2_font_7x14B_tf);
+        u8g2.setFontPosCenter();
+        u8g2.setCursor(0, 28);
+        LeftPrintToScreen("Weight:", 56);
 
         u8g2.setFont(u8g2_font_7x14B_tf);
         u8g2.setFontPosCenter();
         u8g2.setCursor(0, 28);
         snprintf(buf, sizeof(buf), "%3.1fg", abs(scaleWeight));
-        CenterPrintToScreen(buf, 32);
-
-        u8g2.setFont(u8g2_font_7x13_tf);
-        u8g2.setFontPosCenter();
-        u8g2.setCursor(5, 50);
-        snprintf(buf2, sizeof(buf2), "Set: %3.1fg", setWeight);
-        LeftPrintToScreen(buf2, 50);
-
-        
+        RightPrintToScreen(buf, 56);
       } else if (scaleStatus == STATUS_GRINDING_FAILED) {
 
         u8g2.setFontPosTop();

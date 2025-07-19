@@ -24,10 +24,15 @@ class MenuItem
 #define STATUS_TARING 7
 #define STATUS_MANUAL_READY 8
 #define STATUS_MANUAL_IN_PROGRESS 9
+#define STATUS_OFFSET_WARNING 10
+
+#define WARNING_ON_OFFSET 1
 
 #define CUP_WEIGHT 574
 #define CUP_DETECTION_TOLERANCE 10 // 10 grams tolerance above or bellow cup weight to detect it
 #define WAKE_UP_WEIGHT_TOLERANCE 300 // 300 grams tolerance to wake up display
+
+#define EXPECTED_OFFSET -1.0 // expected offset for this grinder
 
 #define LOADCELL_DOUT_PIN 6
 #define LOADCELL_SCK_PIN 7
@@ -36,7 +41,7 @@ class MenuItem
 #define LOADCELL_NUMBER_READINGS 5
 
 #define TARE_MEASURES 20 // use the average of measure for taring
-#define SIGNIFICANT_WEIGHT_CHANGE 5 // 5 grams changes are used to detect a significant change
+#define SIGNIFICANT_WEIGHT_CHANGE 20 // 50 grams changes are used to detect a significant change
 #define COFFEE_DOSE_WEIGHT 18
 #define COFFEE_DOSE_OFFSET -1.0
 #define MAX_GRINDING_TIME 30000 // 30 seconds diff
@@ -45,7 +50,7 @@ class MenuItem
 
 #define GRINDER_ACTIVE_PIN 14
 
-#define TARE_MIN_INTERVAL 60 * 1000 // auto-tare at most once every 60 seconds
+#define TARE_MIN_INTERVAL 10 * 1000 // auto-tare at most once every 60 seconds
 
 #define ROTARY_ENCODER_A_PIN 40
 #define ROTARY_ENCODER_B_PIN 41

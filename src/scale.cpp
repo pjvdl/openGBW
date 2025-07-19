@@ -84,6 +84,12 @@ void rotary_onButtonClick()
     currentMenuItem = MENU_ITEM_MANUAL_GRIND;
     rotaryEncoder.setAcceleration(0);
   }
+  else if(scaleStatus == STATUS_OFFSET_WARNING){
+    scaleStatus = STATUS_IN_SUBMENU;
+    currentSetting = MENU_ITEM_OFFSET;
+    Serial.println("Offset Menu from Warning");
+    rotaryEncoder.setAcceleration(0);
+  }
   else if(scaleStatus == STATUS_MANUAL_IN_PROGRESS) {
     grinderToggle();
     scaleStatus = STATUS_GRINDING_FINISHED;
@@ -236,7 +242,7 @@ void rotary_loop()
         preferences.begin("scale", false);
         preferences.putDouble("setWeight", setWeight);
         preferences.end();
-      }
+    }
     else if(scaleStatus == STATUS_IN_MENU){
       int newValue = rotaryEncoder.readEncoder();
       currentMenuItem = (currentMenuItem + (newValue - encoderValue) * encoderDir) % menuItemsCount;
@@ -331,24 +337,38 @@ void updateScale( void * parameter) {
 
 void scaleStatusLoop(void *p) {
   double tenSecAvg;
+  bool significantWeightChange;
+
   for (;;) {
     tenSecAvg = weightHistory.averageSince((int64_t)millis() - 10000);
-    
 
-    if (ABS(tenSecAvg - scaleWeight) > SIGNIFICANT_WEIGHT_CHANGE) {
+    significantWeightChange = ABS(tenSecAvg - scaleWeight) > SIGNIFICANT_WEIGHT_CHANGE;
+    if (significantWeightChange) {
       lastAction = millis();
     }
 
     if (scaleStatus == STATUS_EMPTY) {
+      // if scale is empty, check if it should be tared
       if (((millis() - lastTareAt) > TARE_MIN_INTERVAL)
-          && (ABS(tenSecAvg) >= 0.1) 
-          && (tenSecAvg < 3) 
-          && (scaleWeight < 1000)) {
+          && (ABS(tenSecAvg) >= 0.1)
+          && (tenSecAvg < 10) // if scale is not empty, tare it
+          && (!significantWeightChange)) {
         // tare if: not tared recently, more than 0.2 away from 0, less than 3 grams total (also works for negative weight)
         lastTareAt = 0;
         scaleStatus = STATUS_TARING;
+        wakeDisp = 1;
+        Serial.println("Taring scale");
       }
 
+      // if the offset has changed outside of the tolerance for this grinder, show warning
+      if (ABS(offset - EXPECTED_OFFSET) >= 0.3 && WARNING_ON_OFFSET) {
+        scaleStatus = STATUS_OFFSET_WARNING;
+        Serial.printf("Offset warning, expected: %f, actual: %f\n", EXPECTED_OFFSET, offset);
+        wakeDisp = 1;
+        continue;
+      }
+
+      // wake up display if a weight is detected on the scale
       if (ABS(weightHistory.minSince((int64_t)millis() - 1000)) > WAKE_UP_WEIGHT_TOLERANCE 
         && ABS(weightHistory.maxSince((int64_t)millis() - 1000)) > WAKE_UP_WEIGHT_TOLERANCE
           && (lastTareAt != 0)
@@ -357,12 +377,13 @@ void scaleStatusLoop(void *p) {
         wakeDisp = 1;
       }
 
+      // if the weight is within tolerance of the cup weight, start grinding
       if (ABS(weightHistory.minSince((int64_t)millis() - 1000) - setCupWeight) < CUP_DETECTION_TOLERANCE 
         && ABS(weightHistory.maxSince((int64_t)millis() - 1000) - setCupWeight) < CUP_DETECTION_TOLERANCE
         && (lastTareAt != 0)
         && scaleReady)
       {
-      // using average over last 500ms as empty cup weight
+        // using average over last 500ms as empty cup weight
         wakeDisp = 1;
         Serial.println("Starting grinding");
         cupWeightEmpty = weightHistory.averageSince((int64_t)millis() - 500);
@@ -476,6 +497,8 @@ void scaleStatusLoop(void *p) {
       if (lastTareAt != 0) {
         scaleStatus = STATUS_EMPTY;
       }
+    } else if (scaleStatus == STATUS_OFFSET_WARNING) {
+      wakeDisp = 1;
     }
     rotary_loop();
     delay(50);
